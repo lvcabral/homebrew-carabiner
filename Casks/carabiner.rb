@@ -1,6 +1,6 @@
 cask "carabiner" do
-  version "2.1.1"
-  sha256 "606541e4c679b65e26191ce65620d264d3f25b16b39b8ca312b4424bf97f7a3d"
+  version "2.1.2"
+  sha256 "3ce852acb32ef5d6e8004bd200665da114f1aa2ba8d3e6e46ba21f926ed4e95a"
 
   url "https://github.com/lvcabral/carabiner/releases/download/v#{version}/Carabiner-#{version}-universal.dmg"
   name "Carabiner"
