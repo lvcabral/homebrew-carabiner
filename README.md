@@ -9,6 +9,8 @@ brew tap lvcabral/carabiner
 brew install --cask carabiner
 ```
 
+Homebrew picks the DMG for your Mac: the `arm64` build on Apple Silicon, the `x64` build on Intel.
+
 ## Upgrade
 
 ```bash
