@@ -31,11 +31,24 @@ jobs:
       - name: Compute SHA256 and update cask
         if: steps.release.outputs.up_to_date == 'false'
         run: |
+          set -euo pipefail
           VERSION="${{ steps.release.outputs.latest }}"
-          URL="https://github.com/lvcabral/carabiner/releases/download/v${VERSION}/Carabiner-${VERSION}-universal.dmg"
-          SHA=$(curl -sL "$URL" | shasum -a 256 | awk '{print $1}')
+          BASE="https://github.com/lvcabral/carabiner/releases/download/v${VERSION}"
+          # -f fails on a missing asset (e.g. still uploading) instead of hashing the 404 page,
+          # so the cask is left untouched and the next run tries again.
+          curl -fsSL -o arm64.dmg "${BASE}/Carabiner-${VERSION}-arm64.dmg"
+          curl -fsSL -o x64.dmg "${BASE}/Carabiner-${VERSION}-x64.dmg"
+          ARM_SHA=$(shasum -a 256 arm64.dmg | awk '{print $1}')
+          INTEL_SHA=$(shasum -a 256 x64.dmg | awk '{print $1}')
+          rm arm64.dmg x64.dmg
           sed -i "s/version \".*\"/version \"${VERSION}\"/" Casks/carabiner.rb
-          sed -i "s/sha256 \".*\"/sha256 \"${SHA}\"/" Casks/carabiner.rb
+          sed -i "s/sha256 arm: *\"[0-9a-f]*\"/sha256 arm:   \"${ARM_SHA}\"/" Casks/carabiner.rb
+          sed -i "s/intel: *\"[0-9a-f]\{64\}\"/intel: \"${INTEL_SHA}\"/" Casks/carabiner.rb
+          # 3.0.1 was the last release without an x64 DMG, so its cask points Intel Macs to the
+          # universal DMG; every later release has an x64 one.
+          sed -i "s/intel: \"universal\"/intel: \"x64\"/" Casks/carabiner.rb
+          grep -q "sha256 arm:   \"${ARM_SHA}\"" Casks/carabiner.rb
+          grep -q "intel: \"${INTEL_SHA}\"" Casks/carabiner.rb
 
       - name: Commit and push
         if: steps.release.outputs.up_to_date == 'false'
