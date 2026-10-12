@@ -1,9 +1,9 @@
 cask "carabiner" do
-  arch arm: "arm64", intel: "universal"
+  arch arm: "arm64", intel: "x64"
 
-  version "3.0.1"
-  sha256 arm:   "c14ad48938afd7ee623b46ae23b75c13cac5dd469b10ca650f3f107bc708a5e4",
-         intel: "e6607478a88e325dba65c913a252483dab44d949ff5bb47644ad815cb3e34f48"
+  version "3.0.2"
+  sha256 arm:   "15f7be7579eab640bb27488a2d6a29c013830125c8c28cfd0f1b70b97f790670",
+         intel: "db8fa75230cb4c1f89716feb0d648fafa86ce961ee1525881df2873436ae2529"
 
   url "https://github.com/lvcabral/carabiner/releases/download/v#{version}/Carabiner-#{version}-#{arch}.dmg"
   name "Carabiner"
