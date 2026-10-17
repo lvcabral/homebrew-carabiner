@@ -16,10 +16,19 @@ jobs:
 
       - name: Check for new release
         id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          LATEST=$(curl -s https://api.github.com/repos/lvcabral/carabiner/releases/latest \
-            | jq -r '.tag_name | ltrimstr("v")')
+          set -euo pipefail
+          # Authenticated, and validated: an anonymous call can be rate-limited, and an error body's
+          # missing tag_name would otherwise read as a "new" version called "null".
+          LATEST=$(gh api repos/lvcabral/carabiner/releases/latest --jq '.tag_name | ltrimstr("v")')
           CURRENT=$(grep 'version "' Casks/carabiner.rb | grep -o '"[^"]*"' | tr -d '"')
+          echo "latest=$LATEST current=$CURRENT"
+          if ! [[ "$LATEST" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Unexpected latest release version: '$LATEST'"
+            exit 1
+          fi
           echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
           echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
           if [ "$LATEST" = "$CURRENT" ]; then
